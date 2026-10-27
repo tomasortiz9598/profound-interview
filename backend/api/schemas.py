@@ -9,3 +9,7 @@ class HelloWorld(BaseModel):
     content: str
     created_time: datetime.datetime
     updated_time: datetime.datetime
+
+
+class AccountChallengeStarted(BaseModel):
+    status: str

@@ -19,6 +19,12 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
   api:
     build:
       context: .
@@ -26,12 +32,30 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
     env_file: .env
     environment:
       PYTHONPATH: /app
       PGHOST: db
+      REDIS_HOST: redis
     ports:
       - "8000:8000"
+
+  worker:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    depends_on:
+      redis:
+        condition: service_started
+    env_file: .env
+    environment:
+      PYTHONPATH: /app
+      REDIS_HOST: redis
+    command: ["celery", "-A", "api.celery_app", "worker", "--loglevel=info"]
+    deploy:
+      replicas: 0
 
 volumes:
   postgres_data:
