@@ -7,6 +7,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       "/hello-world": "http://localhost:8000",
+      "/account-challenge": "http://localhost:8000",
     },
   },
 });
